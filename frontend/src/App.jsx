@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
+import Analytics from './pages/Analytics';
+import TopicAnalytics from './pages/TopicAnalytics';
 
 function App() {
   return (
@@ -17,6 +19,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics/:shortUrl"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/topic/:topic"
+            element={
+              <ProtectedRoute>
+                <TopicAnalytics />
               </ProtectedRoute>
             }
           />

@@ -141,12 +141,12 @@ router.get('/:shortUrl', auth, async (req, res) => {
         date,
         count,
       })),
-      osStats: Object.entries(osStats).map(([os, stats]) => ({
+      osType: Object.entries(osStats).map(([os, stats]) => ({
         os,
         uniqueClicks: stats.uniqueClicks.size,
         uniqueUsers: stats.uniqueUsers.size,
       })),
-      deviceStats: Object.entries(deviceStats).map(([device, stats]) => ({
+      deviceType: Object.entries(deviceStats).map(([device, stats]) => ({
         device,
         uniqueClicks: stats.uniqueClicks.size,
         uniqueUsers: stats.uniqueUsers.size,

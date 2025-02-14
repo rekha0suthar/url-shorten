@@ -33,3 +33,21 @@ export const getUrlsApi = async () => {
   const response = await api.get('/urls');
   return response.data;
 };
+
+// fetch analytics of a specific url
+export const getUrlAnalyticsApi = async (shortUrl) => {
+  const response = await api.get(`/analytics/${shortUrl}`);
+  return response.data;
+};
+
+// fetch analytics of all urls
+export const getOverallAnalyticsApi = async () => {
+  const response = await api.get(`/analytics/overall`);
+  return response.data;
+};
+
+// fetch analytics of all urls group to specific topic
+export const getTopicAnalyticsApi = async (topic) => {
+  const response = await api.get(`/analytics/topic/${topic}`);
+  return response.data;
+};

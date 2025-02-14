@@ -14,11 +14,12 @@ import CreateUrlForm from '../components/CreateUrlForm';
 import UrlList from '../components/UrlList';
 import { getUrlsApi } from '../apis/index.js';
 import { useAuth } from '../context/AuthContext';
-
+import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState('');
   const { loading, setLoading } = useAuth();
+  const navigate = useNavigate();
 
   // Fetch URLs from the API when the component mounts/renders
   useEffect(() => {
@@ -31,10 +32,16 @@ const Dashboard = () => {
       const data = await getUrlsApi(selectedTopic);
       setUrls(data);
     } catch (error) {
+      console.log(error);
       toast.error('Failed to fetch URLs');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTopicChange = (e) => {
+    setSelectedTopic(e.target.value);
+    navigate(`/topic/${e.target.value}`);
   };
 
   return (
@@ -44,7 +51,11 @@ const Dashboard = () => {
           URL Shortener Dashboard
         </Typography>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Button variant="outlined" sx={{ mr: 2 }}>
+          <Button
+            variant="outlined"
+            sx={{ mr: 2 }}
+            onClick={() => navigate('/analytics/overall')}
+          >
             Overall Analytics
           </Button>
           <FormControl sx={{ minWidth: 200 }}>
@@ -54,6 +65,7 @@ const Dashboard = () => {
               id="topic-select"
               value={selectedTopic}
               label="Filter by Topic"
+              onChange={handleTopicChange}
             >
               <MenuItem value="acquisition">Acquisition</MenuItem>
               <MenuItem value="activation">Activation</MenuItem>
