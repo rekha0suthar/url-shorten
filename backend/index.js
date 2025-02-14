@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import userRoute from './routes/UserRoute.js';
 import urlRoute from './routes/UrlRoute.js';
+import analyticsRoute from './routes/AnalyticsRoute.js';
 
 // Load environment variables
 dotenv.config();
@@ -12,12 +13,13 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Enable CORS
+app.use(express.json()); // for parsing application/json
 
 // Routes
-app.use('/api/auth', userRoute);
-app.use('/api/urls', urlRoute);
+app.use('/api/auth', userRoute); // User authentication route
+app.use('/api/urls', urlRoute); // URL shortening route
+app.use('/api/analytics', analyticsRoute); // Analytics route
 
 // MongoDB connection
 mongoose
