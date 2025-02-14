@@ -10,10 +10,6 @@ const urlSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  customAlias: {
-    type: String,
-    sparse: true,
-  },
   topic: {
     type: String,
     enum: ['acquisition', 'activation', 'retention', 'others'],
