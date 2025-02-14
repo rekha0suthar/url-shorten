@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -9,35 +9,17 @@ import {
   InputLabel,
   FormControl,
 } from '@mui/material';
-import { toast } from 'react-toastify';
 import CreateUrlForm from '../components/CreateUrlForm';
-import UrlList from '../components/UrlList';
-import { getUrlsApi } from '../apis/index.js';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
-  const [urls, setUrls] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const { loading, setLoading } = useAuth();
   const navigate = useNavigate();
+  const { fetchUrls, selectedTopic, setSelectedTopic } = useAuth();
 
   // Fetch URLs from the API when the component mounts/renders
   useEffect(() => {
     fetchUrls();
   }, [selectedTopic]);
-
-  // Fetch URLs from the API with optional topic filtering
-  const fetchUrls = async () => {
-    try {
-      const data = await getUrlsApi(selectedTopic);
-      setUrls(data);
-    } catch (error) {
-      console.log(error);
-      toast.error('Failed to fetch URLs');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleTopicChange = (e) => {
     setSelectedTopic(e.target.value);
@@ -53,10 +35,17 @@ const Dashboard = () => {
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button
             variant="outlined"
-            sx={{ mr: 2 }}
+            sx={{ mr: 1, p: 1.5 }}
             onClick={() => navigate('/analytics/overall')}
           >
             Overall Analytics
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{ mr: 1, p: 1.5 }}
+            onClick={() => navigate('/history')}
+          >
+            History
           </Button>
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel id="topic-select-label">Filter by Topic</InputLabel>
@@ -75,11 +64,6 @@ const Dashboard = () => {
           </FormControl>
         </Box>
         <CreateUrlForm onUrlCreated={fetchUrls} />
-        {loading ? (
-          <Typography>Loading...</Typography>
-        ) : (
-          <UrlList urls={urls} />
-        )}
       </Box>
     </Container>
   );

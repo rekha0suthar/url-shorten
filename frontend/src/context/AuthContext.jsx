@@ -1,12 +1,16 @@
 import { createContext, useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
+import { getUrlsApi } from '../apis';
+import { toast } from 'react-toastify';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [urls, setUrls] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState('');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,8 +36,33 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
+  // Fetch URLs from the API with optional topic filtering
+  const fetchUrls = async () => {
+    try {
+      const data = await getUrlsApi(selectedTopic);
+      setUrls(data);
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to fetch URLs');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, setLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        loading,
+        setLoading,
+        urls,
+        fetchUrls,
+        selectedTopic,
+        setSelectedTopic,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

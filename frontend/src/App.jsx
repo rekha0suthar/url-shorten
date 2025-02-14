@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import Analytics from './pages/Analytics';
 import TopicAnalytics from './pages/TopicAnalytics';
+import UrlList from './pages/UrlList';
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <TopicAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <UrlList />
               </ProtectedRoute>
             }
           />
