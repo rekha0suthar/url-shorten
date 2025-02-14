@@ -49,7 +49,15 @@ router.post('/shorten', auth, createUrlLimiter, async (req, res) => {
     // save URL to database
     await newUrl.save();
 
-    res.status(201).json({ shortUrl: alias, createdAt: newUrl.createdAt });
+    // Construct the full short URL dynamically.
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const fullShortUrl = `${protocol}://${host}/api/shorten/${alias}`;
+
+    res.status(201).json({
+      shortUrl: fullShortUrl,
+      createdAt: newUrl.createdAt,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -59,7 +67,7 @@ router.post('/shorten', auth, createUrlLimiter, async (req, res) => {
 // API - url redirect - GET
 // Redirect to the original URL using the alias.
 // This route should be defined outside of API paths so that visiting BASE_URL/alias redirects properly.
-router.get('/:alias', async (req, res) => {
+router.get('/shorten/:alias', async (req, res) => {
   try {
     const { alias } = req.params;
 
@@ -101,7 +109,7 @@ router.get('/:alias', async (req, res) => {
 // API - fetch all urls - GET
 // Fetch all URLs for authenticated user with optional topic filter.
 
-router.get('/', auth, async (req, res) => {
+router.get('/urls', auth, async (req, res) => {
   try {
     const user = req.user.email;
     const { topic } = req.query;

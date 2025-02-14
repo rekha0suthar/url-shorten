@@ -7,7 +7,10 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { toast } from 'react-toastify';
 import { shortenUrlApi } from '../apis/index';
 import { useAuth } from '../context/AuthContext';
@@ -21,14 +24,16 @@ const CreateUrlForm = ({ onUrlCreated }) => {
     customAlias: '',
     topic: '',
   });
+  const [shortUrl, setShortUrl] = useState('');
   const { loading, setLoading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setShortUrl('');
 
     try {
-      await shortenUrlApi(formData);
+      const data = await shortenUrlApi(formData);
+      setShortUrl(data.shortUrl);
       toast.success('URL shortened successfully!');
       setFormData({ originalUrl: '', customAlias: '', topic: '' });
       onUrlCreated();
@@ -44,6 +49,13 @@ const CreateUrlForm = ({ onUrlCreated }) => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleCopyUrl = () => {
+    if (shortUrl) {
+      navigator.clipboard.writeText(shortUrl);
+      toast.success('Short URL copied to clipboard!');
+    }
   };
 
   return (
@@ -92,6 +104,26 @@ const CreateUrlForm = ({ onUrlCreated }) => {
       >
         {loading ? 'Creating...' : 'Create Short URL'}
       </Button>
+
+      {shortUrl && (
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
+          <TextField
+            fullWidth
+            label="Short URL"
+            value={shortUrl}
+            InputProps={{
+              readOnly: true,
+            }}
+            variant="outlined"
+            sx={{ mr: 1 }}
+          />
+          <Tooltip title="Copy to clipboard">
+            <IconButton color="primary" onClick={handleCopyUrl}>
+              <ContentCopyIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
     </Box>
   );
 };
