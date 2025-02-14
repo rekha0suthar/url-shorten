@@ -4,6 +4,7 @@ import Url from '../models/UrlModel.js';
 import { nanoid } from 'nanoid';
 import rateLimit from 'express-rate-limit';
 import { UAParser } from 'ua-parser-js';
+import geoip from 'geoip-lite';
 
 const router = Router();
 
@@ -100,7 +101,7 @@ router.get('/:alias', async (req, res) => {
 // API - fetch all urls - GET
 // Fetch all URLs for authenticated user with optional topic filter.
 
-router.get('/', authenticate, async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const user = req.user.email;
     const { topic } = req.query;
