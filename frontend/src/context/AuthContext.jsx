@@ -1,5 +1,7 @@
 import { createContext, useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -43,4 +45,8 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
