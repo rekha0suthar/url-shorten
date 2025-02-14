@@ -15,7 +15,7 @@ import { Analytics as AnalyticsIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const UrlList = ({ urls }) => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const UrlList = ({ urls }) => {
             <TableRow key={url.shortUrl}>
               <TableCell>
                 <Link
-                  href={`${BASE_URL}/${url.shortUrl}`}
+                  href={`${BASE_URL}/shorten/${url.shortUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

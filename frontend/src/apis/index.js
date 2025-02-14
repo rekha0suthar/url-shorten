@@ -24,7 +24,7 @@ export const googleLoginApi = async (credentialResponse) => {
 
 // Shorten url api
 export const shortenUrlApi = async (data) => {
-  const response = await api.post('/urls/shorten', data);
+  const response = await api.post('/shorten', data);
   return response.data;
 };
 

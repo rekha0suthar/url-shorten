@@ -18,7 +18,7 @@ app.use(express.json()); // for parsing application/json
 
 // Routes
 app.use('/api/auth', userRoute); // User authentication route
-app.use('/api/urls', urlRoute); // URL shortening route
+app.use('/api', urlRoute); // URL shortening route
 app.use('/api/analytics', analyticsRoute); // Analytics route
 
 // MongoDB connection

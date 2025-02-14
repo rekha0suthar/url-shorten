@@ -49,7 +49,7 @@ router.post('/shorten', auth, createUrlLimiter, async (req, res) => {
     // save URL to database
     await newUrl.save();
 
-    res.status(201).json({ message: 'Short url created successfully' });
+    res.status(201).json({ shortUrl: alias, createdAt: newUrl.createdAt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
