@@ -3,18 +3,26 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { googleLoginApi } from '../apis/index';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 const Login = () => {
-  const { login } = useAuth();
+  const { login, setLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Get the state passed from the redirect (if any)
 
   const onSuccess = async (credentialResponse) => {
     try {
+      setLoading(false);
+      const { redirectAfterLogin, pendingUrlData } = location.state || {};
+      console.log(location.state);
       const data = await googleLoginApi(credentialResponse);
 
       login({
         token: data.token,
         ...data.user,
       });
+      navigate(redirectAfterLogin || '/');
+
       toast.success('Login successful!');
     } catch (error) {
       console.error('Login error:', error);

@@ -70,60 +70,68 @@ const UrlList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {urls.map((url) => (
-              <TableRow key={url.shortUrl}>
-                <TableCell>
-                  <Link
-                    href={`${BASE_URL}/shorten/${url.shortUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {url.shortUrl}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Box
-                    component="div"
-                    sx={{
-                      maxWidth: 300,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
+            {urls.length > 0 &&
+              urls.map((url) => (
+                <TableRow key={url.shortUrl}>
+                  <TableCell>
                     <Link
-                      href={url.originalUrl}
+                      href={`${BASE_URL}/shorten/${url.shortUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {url.originalUrl}
+                      {url.shortUrl}
                     </Link>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  {url.topic && (
-                    <Chip
-                      label={url.topic}
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      component="div"
+                      sx={{
+                        maxWidth: 300,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      <Link
+                        href={url.originalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {url.originalUrl}
+                      </Link>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    {url.topic && (
+                      <Chip
+                        label={url.topic}
+                        color="primary"
+                        variant="outlined"
+                        size="small"
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(url.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={() => navigate(`/analytics/${url.shortUrl}`)}
                       color="primary"
-                      variant="outlined"
-                      size="small"
-                    />
-                  )}
-                </TableCell>
-                <TableCell>
-                  {new Date(url.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => navigate(`/analytics/${url.shortUrl}`)}
-                    color="primary"
-                    title="View Analytics"
-                  >
-                    <AnalyticsIcon />
-                  </IconButton>
+                      title="View Analytics"
+                    >
+                      <AnalyticsIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            {urls.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  No URLs found
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
