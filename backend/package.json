@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +25,12 @@
     "nodemon": "^3.1.9",
     "redis": "^4.7.0",
     "ua-parser-js": "^2.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/preset-env": "^7.26.9",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }
