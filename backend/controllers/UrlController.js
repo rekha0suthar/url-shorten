@@ -2,7 +2,8 @@ import { nanoid } from 'nanoid';
 import Url from '../models/UrlModel.js';
 import { UAParser } from 'ua-parser-js';
 import geoip from 'geoip-lite';
-
+import redisClient from '../redisClient.js';
+// Shorten URL controller
 const shortUrl = async (req, res) => {
   try {
     const { originalUrl, customAlias, topic } = req.body;
@@ -73,6 +74,12 @@ const redirectUrl = async (req, res) => {
       },
     };
 
+    // Check if the URL is cached in Redis
+    const cachedUrl = await redisClient.get(`shortUrl:${alias}`);
+    if (cachedUrl) {
+      return res.redirect(cachedUrl);
+    }
+
     // Find the URL by alias
     const url = await Url.findOneAndUpdate(
       { shortUrl: alias },
@@ -84,6 +91,11 @@ const redirectUrl = async (req, res) => {
       return res.status(404).json({ message: 'URL not found' });
     }
 
+    // Cache the URL in Redis
+    await redisClient.set(`shortUrl:${alias}`, url.originalUrl, {
+      EX: 3600, // Cache for 1 hour
+    });
+
     // Redirect to the original URL
     res.redirect(url.originalUrl);
   } catch (error) {
@@ -93,35 +105,35 @@ const redirectUrl = async (req, res) => {
 };
 
 const getUrls = async (req, res) => {
-    try {
-      const user = req.user.email;
-      let { page = 1, limit = 7 } = req.query;
-  
-      let query = { user };
-  
-      const options = {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        sort: { createdAt: -1 }, // Optional: sort by creation date descending
-      };
-  
-      const urls = await Url.find(query)
-        .sort(options.sort)
-        .skip((options.page - 1) * options.limit)
-        .limit(options.limit);
-  
-      const total = await Url.countDocuments(query);
-  
-      res.status(200).json({
-        urls,
-        total,
-        page: options.page,
-        pages: Math.ceil(total / options.limit),
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const user = req.user.email;
+    let { page = 1, limit = 7 } = req.query;
+
+    let query = { user };
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: { createdAt: -1 }, // Optional: sort by creation date descending
+    };
+
+    const urls = await Url.find(query)
+      .sort(options.sort)
+      .skip((options.page - 1) * options.limit)
+      .limit(options.limit);
+
+    const total = await Url.countDocuments(query);
+
+    res.status(200).json({
+      urls,
+      total,
+      page: options.page,
+      pages: Math.ceil(total / options.limit),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
+};
 
 export { shortUrl, redirectUrl, getUrls };

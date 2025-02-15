@@ -92,8 +92,8 @@ const getTopicAnalytics = async (req, res) => {
 
 const getUrlAnalytics = async (req, res) => {
   try {
-    const { shortUrl } = req.params;
-    const url = await Url.findOne({ shortUrl, user: req.user.email });
+    const { alias } = req.params;
+    const url = await Url.findOne({ shortUrl: alias, user: req.user.email });
 
     if (!url) {
       return res.status(404).json({ message: 'URL not found' });

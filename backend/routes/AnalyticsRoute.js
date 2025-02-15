@@ -16,6 +16,6 @@ router.get('/overall', auth, getOverallAnalytics);
 router.get('/topic/:topic', auth, getTopicAnalytics);
 
 // API - short URL specific analytics - GET
-router.get('/:shortUrl', auth, getUrlAnalytics);
+router.get('/:alias', auth, getUrlAnalytics);
 
 export default router;

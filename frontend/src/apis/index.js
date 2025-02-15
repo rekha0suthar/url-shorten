@@ -35,8 +35,8 @@ export const getUrlsApi = async (params) => {
 };
 
 // fetch analytics of a specific url
-export const getUrlAnalyticsApi = async (shortUrl) => {
-  const response = await api.get(`/analytics/${shortUrl}`);
+export const getUrlAnalyticsApi = async (alias) => {
+  const response = await api.get(`/analytics/${alias}`);
   return response.data;
 };
 
