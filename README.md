@@ -1,7 +1,5 @@
 # Shortify - URL Shortener Application
 
-![Shortify Logo](https://your-logo-url.com/logo.png) <!-- Replace with your actual logo URL -->
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -85,7 +83,7 @@
 
 ## Demo
 
-![Shortify Demo](https://your-demo-url.com/demo.gif) <!-- Replace with actual demo GIF or screenshot -->
+[Shortify Demo](https://shortify-nu.vercel.app/) <!-- Replace with actual demo GIF or screenshot -->
 
 ## Challenges Faced
 
@@ -100,6 +98,18 @@
    > Challenge: Tracking and analyzing URL data was another hurdle.
 
    > Solution: I conducted online research and discovered several informative blog posts that helped me understand the analytics process and proceed with the implementation.
+
+3. Login only while creating a url
+
+   > Challenge: I wanted to ensure that users are logged in only while creating a url.
+
+   > Solution: I used the `useLocation` hook to get the state from the redirect and then used the `useAuth` hook to check if the user is logged in. If not, I redirected the user to the login page.
+
+4. Docker setup
+
+   > Challenge: I never used docker before.
+
+   > Solution: I read the documentation and followed the steps to setup the docker compose file.
 
 ## Getting Started
 
