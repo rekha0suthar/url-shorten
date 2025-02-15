@@ -15,21 +15,22 @@ import { ArrowBack } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { getTopicAnalyticsApi } from '../apis/index';
 import AnalyticsChart from '../components/AnalyticsChart';
+import Loading from '../components/Loading';
 
 const TopicAnalytics = () => {
-  const [analytics, setAnalytics] = useState(null);
+  const [topicAnalytics, setTopicAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const { topic } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAnalytics();
-  }, [topic]);
+    fetchTopicAnalytics();
+  }, []);
 
-  const fetchAnalytics = async () => {
+  const fetchTopicAnalytics = async () => {
     try {
       const data = await getTopicAnalyticsApi(topic);
-      setAnalytics(data);
+      setTopicAnalytics(data);
     } catch (error) {
       console.log(error);
       toast.error('Failed to fetch topic analytics');
@@ -40,7 +41,7 @@ const TopicAnalytics = () => {
   };
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return <Loading />;
   }
 
   return (
@@ -67,13 +68,13 @@ const TopicAnalytics = () => {
                 <ListItem>
                   <ListItemText
                     primary="Total Clicks"
-                    secondary={analytics.totalClicks}
+                    secondary={topicAnalytics.totalClicks}
                   />
                 </ListItem>
                 <ListItem>
                   <ListItemText
                     primary="Unique Users"
-                    secondary={analytics.uniqueUsers}
+                    secondary={topicAnalytics.uniqueUsers}
                   />
                 </ListItem>
               </List>
@@ -83,7 +84,7 @@ const TopicAnalytics = () => {
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <AnalyticsChart
-                data={analytics.clicksInWeek}
+                data={topicAnalytics.clicksInWeek}
                 title="Clicks Over Time"
               />
             </Paper>
@@ -95,7 +96,7 @@ const TopicAnalytics = () => {
                 URLs in this Topic
               </Typography>
               <List>
-                {analytics.urls.map((url) => (
+                {topicAnalytics.urls.map((url) => (
                   <ListItem key={url.shortUrl}>
                     <ListItemText
                       primary={url.shortUrl}

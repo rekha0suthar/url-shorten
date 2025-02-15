@@ -11,14 +11,20 @@ import {
 import CreateUrlForm from '../components/CreateUrlForm';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../components/Loading';
+
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { fetchUrls, selectedTopic, setSelectedTopic } = useAuth();
+  const { fetchUrls, selectedTopic, setSelectedTopic, loading } = useAuth();
 
   const handleTopicChange = (e) => {
     setSelectedTopic(e.target.value);
     navigate(`/topic/${e.target.value}`);
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <Container maxWidth="lg">

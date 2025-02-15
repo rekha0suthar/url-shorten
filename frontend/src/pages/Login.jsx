@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { googleLoginApi } from '../apis/index';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Loading from '../components/Loading';
+
 const Login = () => {
-  const { login, setLoading, handleData } = useAuth();
+  const { login, setLoading, handleData, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   // Get the state passed from the redirect (if any)
@@ -34,6 +36,10 @@ const Login = () => {
   const onError = () => {
     toast.error('Google Sign-In failed. Please try again.');
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <Container component="main" maxWidth="xs" sx={{ marginTop: 30 }}>

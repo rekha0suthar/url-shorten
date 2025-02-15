@@ -1,7 +1,7 @@
 import { createContext, useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getUrlsApi, shortenUrlApi } from '../apis';
+import { getUrlsApi, shortenUrlApi } from '../apis/index';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext(null);
@@ -18,6 +18,7 @@ export const AuthProvider = ({ children }) => {
     topic: '',
   });
   const [shortUrl, setShortUrl] = useState('');
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,8 +51,7 @@ export const AuthProvider = ({ children }) => {
       setUrls(data.urls);
       setTotalUrls(data.total);
     } catch (error) {
-      console.error('Error fetching URLs:', error);
-      toast.error('Failed to fetch URLs');
+      toast.error(error.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('URL shortened successfully!');
       fetchUrls();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to shorten URL');
+      toast.error(error.response?.data?.message);
     } finally {
       setLoading(false);
     }

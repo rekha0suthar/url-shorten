@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { ArrowBack } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
+import Loading from '../components/Loading';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -44,9 +45,11 @@ const UrlList = () => {
     setPage(value);
   };
 
-  return loading ? (
-    <Typography>Loading...</Typography>
-  ) : (
+  if (loading) {
+    return <Loading />;
+  }
+
+  return (
     <>
       <Button
         startIcon={<ArrowBack />}

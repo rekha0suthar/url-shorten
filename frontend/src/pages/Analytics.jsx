@@ -15,6 +15,7 @@ import { ArrowBack } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { getOverallAnalyticsApi, getUrlAnalyticsApi } from '../apis/index';
 import AnalyticsChart from '../components/AnalyticsChart';
+import Loading from '../components/Loading';
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -24,7 +25,7 @@ const Analytics = () => {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [shortUrl]);
+  }, []);
 
   const fetchAnalytics = async () => {
     try {
@@ -44,7 +45,7 @@ const Analytics = () => {
   };
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return <Loading />;
   }
 
   return (
