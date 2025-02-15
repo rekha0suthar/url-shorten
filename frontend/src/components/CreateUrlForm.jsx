@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -12,37 +12,20 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { toast } from 'react-toastify';
-import { shortenUrlApi } from '../apis/index';
 import { useAuth } from '../context/AuthContext';
 import PropTypes from 'prop-types';
 
 const topics = ['acquisition', 'activation', 'retention'];
 
-const CreateUrlForm = ({ onUrlCreated }) => {
-  const [formData, setFormData] = useState({
-    originalUrl: '',
-    customAlias: '',
-    topic: '',
-  });
-  const [shortUrl, setShortUrl] = useState('');
-  const { loading, setLoading } = useAuth();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setShortUrl('');
-
-    try {
-      const data = await shortenUrlApi(formData);
-      setShortUrl(data.shortUrl);
-      toast.success('URL shortened successfully!');
-      setFormData({ originalUrl: '', customAlias: '', topic: '' });
-      onUrlCreated();
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to shorten URL');
-    } finally {
-      setLoading(false);
-    }
-  };
+const CreateUrlForm = () => {
+  const {
+    loading,
+    formData,
+    setFormData,
+    shortUrl,
+    handleSubmit,
+    setShortUrl,
+  } = useAuth();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -57,6 +40,10 @@ const CreateUrlForm = ({ onUrlCreated }) => {
       toast.success('Short URL copied to clipboard!');
     }
   };
+
+  useEffect(() => {
+    setShortUrl('');
+  }, []);
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>

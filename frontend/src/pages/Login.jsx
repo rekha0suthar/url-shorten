@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { googleLoginApi } from '../apis/index';
 import { useNavigate, useLocation } from 'react-router-dom';
 const Login = () => {
-  const { login, setLoading } = useAuth();
+  const { login, setLoading, handleData } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   // Get the state passed from the redirect (if any)
@@ -14,7 +14,6 @@ const Login = () => {
     try {
       setLoading(false);
       const { redirectAfterLogin, pendingUrlData } = location.state || {};
-      console.log(location.state);
       const data = await googleLoginApi(credentialResponse);
 
       login({
@@ -22,7 +21,9 @@ const Login = () => {
         ...data.user,
       });
       navigate(redirectAfterLogin || '/');
-
+      if (pendingUrlData) {
+        handleData();
+      }
       toast.success('Login successful!');
     } catch (error) {
       console.error('Login error:', error);

@@ -1,7 +1,7 @@
 import { createContext, useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getUrlsApi } from '../apis';
+import { getUrlsApi, shortenUrlApi } from '../apis';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext(null);
@@ -12,7 +12,12 @@ export const AuthProvider = ({ children }) => {
   const [urls, setUrls] = useState([]);
   const [totalUrls, setTotalUrls] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState('');
-
+  const [formData, setFormData] = useState({
+    originalUrl: '',
+    customAlias: '',
+    topic: '',
+  });
+  const [shortUrl, setShortUrl] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,13 +33,12 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    navigate('/');
   };
 
   // logout function
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.clear();
     navigate('/login');
   };
 
@@ -53,6 +57,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setShortUrl('');
+
+    if (!user) {
+      navigate('/login', {
+        state: { redirectAfterLogin: '/', pendingUrlData: formData },
+      });
+      return;
+    }
+    handleData();
+  };
+
+  const handleData = async () => {
+    try {
+      const data = await shortenUrlApi(formData);
+      setShortUrl(data.shortUrl);
+      toast.success('URL shortened successfully!');
+      fetchUrls();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to shorten URL');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -66,6 +96,12 @@ export const AuthProvider = ({ children }) => {
         fetchUrls,
         selectedTopic,
         setSelectedTopic,
+        formData,
+        setFormData,
+        shortUrl,
+        setShortUrl,
+        handleSubmit,
+        handleData,
       }}
     >
       {children}
