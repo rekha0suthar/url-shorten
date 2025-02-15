@@ -2,7 +2,6 @@ import { nanoid } from 'nanoid';
 import Url from '../models/UrlModel.js';
 import { UAParser } from 'ua-parser-js';
 import geoip from 'geoip-lite';
-import redisClient from '../redisClient.js';
 // Shorten URL controller
 const shortUrl = async (req, res) => {
   try {
@@ -74,12 +73,6 @@ const redirectUrl = async (req, res) => {
       },
     };
 
-    // Check if the URL is cached in Redis
-    const cachedUrl = await redisClient.get(`shortUrl:${alias}`);
-    if (cachedUrl) {
-      return res.redirect(cachedUrl);
-    }
-
     // Find the URL by alias
     const url = await Url.findOneAndUpdate(
       { shortUrl: alias },
@@ -90,11 +83,6 @@ const redirectUrl = async (req, res) => {
     if (!url) {
       return res.status(404).json({ message: 'URL not found' });
     }
-
-    // Cache the URL in Redis
-    await redisClient.set(`shortUrl:${alias}`, url.originalUrl, {
-      EX: 3600, // Cache for 1 hour
-    });
 
     // Redirect to the original URL
     res.redirect(url.originalUrl);

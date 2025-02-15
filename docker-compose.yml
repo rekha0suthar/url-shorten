@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shortify-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - '5000:5000' # Maps host port 5000 to container port 5000
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: shortify-frontend
+    restart: unless-stopped
+    ports:
+      - '3000:80' # Maps host port 3000 to container port 80 (Nginx)
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # MongoDB Service
+  mongo:
+    image: mongo:6.0
+    container_name: shortify-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example # Use strong passwords in production
+      MONGO_INITDB_DATABASE: shortify
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - '27017:27017' # Exposes MongoDB port
+    networks:
+      - app-network
+volumes:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge

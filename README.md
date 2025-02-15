@@ -136,7 +136,51 @@
    yarn install
    ```
 
-### Environment Variables
+## Docker setup
+
+1. **Build the Docker Images:**
+
+   ```bash
+   docker-compose build
+   ```
+
+2. **Start the Docker Containers:**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Access the Application:**
+
+   Open your browser and navigate to `http://localhost:3000` to access Shortify.
+
+   > **Note:**
+   >
+   > - The application will be available at `http://localhost:3000`.
+   > - The backend will be available at `http://localhost:5000`.
+   > - The MongoDB will be available at `http://localhost:27017`.
+   > - The Redis will be available at `http://localhost:6379`.
+
+4. **Stop the Docker Containers:**
+
+   ```bash
+   docker-compose down
+   ```
+
+5. **Remove the Docker Containers, Docker Network, Images, Volumes:**
+
+   ```bash
+   docker-compose down -v
+   ```
+
+6. **Execute Commands Inside Containers:**
+
+   ```bash
+     docker-compose exec backend bash
+     docker-compose exec frontend sh
+   ```
+
+## Environment Variables
 
 Create a `.env` file in both the `backend` and `frontend` directories with the following configurations:
 
