@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Box, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { LogoutOutlined } from '@mui/icons-material';
 const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -10,8 +11,8 @@ const Layout = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography
-            variant="h6"
-            component="div"
+            variant="h4"
+            component="h1"
             sx={{ flexGrow: 1, cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
@@ -19,9 +20,9 @@ const Layout = () => {
           </Typography>
           {user && (
             <>
-              <Typography sx={{ mr: 2 }}>{user.email}</Typography>
+              <Typography sx={{ ml: 3 }}>{user.email}</Typography>
               <Button color="inherit" onClick={logout}>
-                Logout
+                <LogoutOutlined />
               </Button>
             </>
           )}

@@ -14,7 +14,6 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import PropTypes from 'prop-types';
-
 const topics = ['acquisition', 'activation', 'retention'];
 
 const CreateUrlForm = () => {

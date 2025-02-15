@@ -36,7 +36,7 @@ const Login = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xs" sx={{ marginTop: 30 }}>
       <Box
         sx={{
           marginTop: 8,
@@ -47,7 +47,7 @@ const Login = () => {
       >
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
-            URL Shortener
+            Shortify
           </Typography>
           <Typography variant="body1" align="center" sx={{ mb: 3 }}>
             Sign in to manage your shortened URLs
