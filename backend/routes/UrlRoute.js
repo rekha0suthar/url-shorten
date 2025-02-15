@@ -35,8 +35,9 @@ router.post('/shorten', auth, createUrlLimiter, async (req, res) => {
         return res.status(400).json({ message: 'Alias already exists' });
       }
       alias = customAlias;
+    } else {
+      alias = nanoid(8);
     }
-    alias = nanoid(8);
 
     // Create new URL
     const newUrl = new Url({
@@ -106,20 +107,35 @@ router.get('/shorten/:alias', async (req, res) => {
   }
 });
 
-// API - fetch all urls - GET
-// Fetch all URLs for authenticated user with optional topic filter.
+// API - fetch all urls with pagination - GET
+// Fetch all URLs for authenticated user with optional topic filter and pagination.
 
 router.get('/urls', auth, async (req, res) => {
   try {
     const user = req.user.email;
-    const { topic } = req.query;
+    let { page = 1, limit = 7 } = req.query;
+
     let query = { user };
-    if (topic) {
-      // filter by topic
-      query.topic = topic;
-    }
-    const urls = await Url.find(query); // fetch all URLs
-    res.status(200).json(urls);
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: { createdAt: -1 }, // Optional: sort by creation date descending
+    };
+
+    const urls = await Url.find(query)
+      .sort(options.sort)
+      .skip((options.page - 1) * options.limit)
+      .limit(options.limit);
+
+    const total = await Url.countDocuments(query);
+
+    res.status(200).json({
+      urls,
+      total,
+      page: options.page,
+      pages: Math.ceil(total / options.limit),
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

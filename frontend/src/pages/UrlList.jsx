@@ -12,23 +12,37 @@ import {
   Link,
   Typography,
   Button,
+  Pagination,
 } from '@mui/material';
 import { Analytics as AnalyticsIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { ArrowBack } from '@mui/icons-material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const UrlList = () => {
   const navigate = useNavigate();
-  const { loading, urls, fetchUrls, selectedTopic } = useAuth();
+  const { loading, urls, fetchUrls, totalUrls } = useAuth();
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const limit = 7; // Number of URLs per page
 
   useEffect(() => {
-    fetchUrls();
-  }, [selectedTopic]);
+    fetchUrls({ page, limit });
+  }, [page]);
+
+  useEffect(() => {
+    if (totalUrls && limit) {
+      setPages(Math.ceil(totalUrls / limit));
+    }
+  }, [totalUrls, limit]);
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   return loading ? (
     <Typography>Loading...</Typography>
@@ -113,6 +127,14 @@ const UrlList = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box display="flex" justifyContent="center" mt={2}>
+        <Pagination
+          count={pages}
+          page={page}
+          onChange={handlePageChange}
+          color="primary"
+        />
+      </Box>
     </>
   );
 };
@@ -127,6 +149,7 @@ UrlList.propTypes = {
       // Add other properties if necessary
     })
   ).isRequired,
+  totalUrls: PropTypes.number.isRequired,
 };
 
 export default UrlList;

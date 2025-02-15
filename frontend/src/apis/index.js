@@ -29,8 +29,8 @@ export const shortenUrlApi = async (data) => {
 };
 
 // fetch all urls api
-export const getUrlsApi = async () => {
-  const response = await api.get('/urls');
+export const getUrlsApi = async (params) => {
+  const response = await api.get('/urls', { params });
   return response.data;
 };
 

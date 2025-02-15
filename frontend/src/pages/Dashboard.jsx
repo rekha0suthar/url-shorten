@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import {
   Container,
-  Typography,
   Box,
   Button,
   Select,
@@ -16,11 +14,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { fetchUrls, selectedTopic, setSelectedTopic } = useAuth();
 
-  // Fetch URLs from the API when the component mounts/renders
-  useEffect(() => {
-    fetchUrls();
-  }, [selectedTopic]);
-
   const handleTopicChange = (e) => {
     setSelectedTopic(e.target.value);
     navigate(`/topic/${e.target.value}`);
@@ -29,9 +22,6 @@ const Dashboard = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          URL Shortener Dashboard
-        </Typography>
         <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button
             variant="outlined"

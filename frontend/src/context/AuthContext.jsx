@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { getUrlsApi } from '../apis';
 import { toast } from 'react-toastify';
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [urls, setUrls] = useState([]);
+  const [totalUrls, setTotalUrls] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState('');
 
   const navigate = useNavigate();
@@ -37,12 +39,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Fetch URLs from the API with optional topic filtering
-  const fetchUrls = async () => {
+  const fetchUrls = async ({ page = 1, limit = 7 } = {}) => {
     try {
-      const data = await getUrlsApi(selectedTopic);
-      setUrls(data);
+      const params = { page, limit };
+      const data = await getUrlsApi(params);
+      setUrls(data.urls);
+      setTotalUrls(data.total);
     } catch (error) {
-      console.log(error);
+      console.error('Error fetching URLs:', error);
       toast.error('Failed to fetch URLs');
     } finally {
       setLoading(false);
@@ -58,6 +62,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         setLoading,
         urls,
+        totalUrls,
         fetchUrls,
         selectedTopic,
         setSelectedTopic,
