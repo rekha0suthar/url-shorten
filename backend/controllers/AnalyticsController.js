@@ -69,9 +69,14 @@ const getTopicAnalytics = async (req, res) => {
 
     const { clicksInWeek, uniqueUsers, totalClicks } = weekStats(urls);
 
+    // Construct the full short URL dynamically.
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const fullShortUrl = `${protocol}://${host}/api/shorten`;
+
     // URL - specific stats
     const urlsStats = urls.map((url) => ({
-      shortUrl: `${process.env.BASE_URL}/${url.shortUrl}`,
+      shortUrl: `${fullShortUrl}/${url.shortUrl}`,
       totalClicks: url.clicks.length,
       uniqueUsers: new Set(url.clicks.map((click) => click.ipAddress)).size,
     }));
