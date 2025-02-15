@@ -22,7 +22,7 @@ app.use('/api/auth', userRoute); // User authentication route
 app.use('/api', urlRoute); // URL shortening route
 app.use('/api/analytics', analyticsRoute); // Analytics route
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'production') {
   const __dirname = path.resolve();
   app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
