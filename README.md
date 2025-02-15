@@ -90,14 +90,16 @@
 ## Challenges Faced
 
 1. Short URL Redirect
+
    > Challenge: Implementing a short URL redirect proved to be tricky.
 
-> Solution: I initially attempted to solve it on my own. When I encountered difficulties, I turned to a YouTube tutorial which provided the guidance I needed.
+   > Solution: I initially attempted to solve it on my own. When I encountered difficulties, I turned to a YouTube tutorial which provided the guidance I needed.
 
 2. URLs Analytics
+
    > Challenge: Tracking and analyzing URL data was another hurdle.
 
-> Solution: I conducted online research and discovered several informative blog posts that helped me understand the analytics process and proceed with the implementation.
+   > Solution: I conducted online research and discovered several informative blog posts that helped me understand the analytics process and proceed with the implementation.
 
 ## Getting Started
 
@@ -112,8 +114,8 @@
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/shortify.git
-   cd shortify
+   git clone https://github.com/rekha0suthar/url-shorten.git
+   cd url-shorten
    ```
 
 2. **Install Backend Dependencies:**
