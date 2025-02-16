@@ -61,6 +61,12 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault();
     setShortUrl('');
 
+    // Check if customAlias is provided and is at least 8 characters long.
+    if (formData.customAlias && formData.customAlias.length < 8) {
+      toast.error('Custom alias must be at least 8 characters long.');
+      return;
+    }
+
     if (!user) {
       navigate('/login', {
         state: { redirectAfterLogin: '/', pendingUrlData: formData },

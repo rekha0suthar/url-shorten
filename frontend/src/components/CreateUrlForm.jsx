@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -25,11 +25,21 @@ const CreateUrlForm = () => {
     handleSubmit,
     setShortUrl,
   } = useAuth();
-
+  const [aliasError, setAliasError] = useState('');
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // If custom alias is being updated, validate its length.
+    if (name === 'customAlias') {
+      if (value && value.length > 0 && value.length < 8) {
+        setAliasError('Custom alias must be at least 8 characters');
+      } else {
+        setAliasError('');
+      }
+    }
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
   };
 
@@ -60,6 +70,7 @@ const CreateUrlForm = () => {
         label="Custom Alias (optional)"
         name="customAlias"
         value={formData.customAlias}
+        error={!!aliasError}
         onChange={handleChange}
         sx={{ mb: 2 }}
       />
