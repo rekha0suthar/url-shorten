@@ -8,43 +8,131 @@ class AnalyticsService {
         $facet: {
           totalUrls: [{ $count: 'count' }],
           clickStats: [
-            { $unwind: '$clicks' },
+            { $unwind: { path: '$clicks', preserveNullAndEmptyArrays: true } },
             {
               $group: {
                 _id: null,
                 totalClicks: { $sum: 1 },
                 uniqueUsers: { $addToSet: '$clicks.ipAddress' },
-                devices: { $addToSet: '$clicks.device' },
-                countries: { $addToSet: '$clicks.location.country' },
-              },
-            },
-          ],
-          topUrls: [
-            { $unwind: '$clicks' },
-            {
-              $group: {
-                _id: '$shortUrl',
-                originalUrl: { $first: '$originalUrl' },
-                clicks: { $sum: 1 },
-              },
-            },
-            { $sort: { clicks: -1 } },
-            { $limit: 5 },
-          ],
-          clicksByDay: [
-            { $unwind: '$clicks' },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: '%Y-%m-%d',
-                    date: '$clicks.timestamp',
+                clicksInWeek: {
+                  $push: {
+                    date: {
+                      $dateToString: {
+                        format: '%Y-%m-%d',
+                        date: '$clicks.timestamp',
+                      },
+                    },
+                    value: 1,
                   },
                 },
-                count: { $sum: 1 },
+                osType: {
+                  $push: {
+                    os: '$clicks.os',
+                  },
+                },
+                deviceType: {
+                  $push: {
+                    device: '$clicks.device',
+                  },
+                },
               },
             },
-            { $sort: { _id: 1 } },
+            {
+              $project: {
+                _id: 0,
+                totalClicks: 1,
+                uniqueUsers: { $size: '$uniqueUsers' },
+                clicksInWeek: 1,
+                osType: {
+                  $map: {
+                    input: {
+                      $setUnion: {
+                        $map: {
+                          input: '$osType',
+                          as: 'os',
+                          in: '$$os.os',
+                        },
+                      },
+                    },
+                    as: 'os',
+                    in: {
+                      osName: '$$os',
+                      uniqueClicks: {
+                        $size: {
+                          $filter: {
+                            input: '$osType',
+                            as: 'osItem',
+                            cond: { $eq: ['$$osItem.os', '$$os'] },
+                          },
+                        },
+                      },
+                      uniqueUsers: {
+                        $size: {
+                          $setUnion: {
+                            $map: {
+                              input: {
+                                $filter: {
+                                  input: '$osType',
+                                  as: 'osItem',
+                                  cond: { $eq: ['$$osItem.os', '$$os'] },
+                                },
+                              },
+                              as: 'osItem',
+                              in: '$$osItem.ipAddress',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                deviceType: {
+                  $map: {
+                    input: {
+                      $setUnion: {
+                        $map: {
+                          input: '$deviceType',
+                          as: 'device',
+                          in: '$$device.device',
+                        },
+                      },
+                    },
+                    as: 'device',
+                    in: {
+                      deviceName: '$$device',
+                      uniqueClicks: {
+                        $size: {
+                          $filter: {
+                            input: '$deviceType',
+                            as: 'deviceItem',
+                            cond: { $eq: ['$$deviceItem.device', '$$device'] },
+                          },
+                        },
+                      },
+                      uniqueUsers: {
+                        $size: {
+                          $setUnion: {
+                            $map: {
+                              input: {
+                                $filter: {
+                                  input: '$deviceType',
+                                  as: 'deviceItem',
+                                  cond: {
+                                    $eq: ['$$deviceItem.device', '$$device'],
+                                  },
+                                },
+                              },
+                              as: 'deviceItem',
+                              in: '$$deviceItem.ipAddress',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           ],
         },
       },
@@ -52,13 +140,36 @@ class AnalyticsService {
         $project: {
           totalUrls: { $arrayElemAt: ['$totalUrls.count', 0] },
           totalClicks: { $arrayElemAt: ['$clickStats.totalClicks', 0] },
-          uniqueUsers: {
-            $size: { $arrayElemAt: ['$clickStats.uniqueUsers', 0] },
+          uniqueUsers: { $arrayElemAt: ['$clickStats.uniqueUsers', 0] },
+          clicksInWeek: {
+            $reduce: {
+              input: { $arrayElemAt: ['$clickStats.clicksInWeek', 0] },
+              initialValue: [],
+              in: {
+                $concatArrays: [
+                  '$$value',
+                  [
+                    {
+                      date: '$$this.date',
+                      value: {
+                        $add: [
+                          {
+                            $ifNull: [
+                              { $arrayElemAt: ['$$value.value', -1] },
+                              0,
+                            ],
+                          },
+                          '$$this.value',
+                        ],
+                      },
+                    },
+                  ],
+                ],
+              },
+            },
           },
-          devices: { $arrayElemAt: ['$clickStats.devices', 0] },
-          countries: { $arrayElemAt: ['$clickStats.countries', 0] },
-          topUrls: 1,
-          clicksByDay: 1,
+          osType: { $arrayElemAt: ['$clickStats.osType', 0] },
+          deviceType: { $arrayElemAt: ['$clickStats.deviceType', 0] },
         },
       },
     ]);
@@ -68,10 +179,9 @@ class AnalyticsService {
         totalUrls: 0,
         totalClicks: 0,
         uniqueUsers: 0,
-        devices: [],
-        countries: [],
-        topUrls: [],
-        clicksByDay: [],
+        clicksInWeek: [],
+        osType: [],
+        deviceType: [],
       }
     );
   }
@@ -83,31 +193,133 @@ class AnalyticsService {
         $facet: {
           urlCount: [{ $count: 'count' }],
           clickStats: [
-            { $unwind: '$clicks' },
+            { $unwind: { path: '$clicks', preserveNullAndEmptyArrays: true } },
             {
               $group: {
                 _id: null,
                 totalClicks: { $sum: 1 },
                 uniqueUsers: { $addToSet: '$clicks.ipAddress' },
-                devices: { $addToSet: '$clicks.device' },
-                countries: { $addToSet: '$clicks.location.country' },
-              },
-            },
-          ],
-          clicksByDay: [
-            { $unwind: '$clicks' },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: '%Y-%m-%d',
-                    date: '$clicks.timestamp',
+                clicksInWeek: {
+                  $push: {
+                    date: {
+                      $dateToString: {
+                        format: '%Y-%m-%d',
+                        date: '$clicks.timestamp',
+                      },
+                    },
+                    value: 1,
                   },
                 },
-                count: { $sum: 1 },
+                osType: {
+                  $push: {
+                    os: '$clicks.os',
+                    ipAddress: '$clicks.ipAddress',
+                  },
+                },
+                deviceType: {
+                  $push: {
+                    device: '$clicks.device',
+                    ipAddress: '$clicks.ipAddress',
+                  },
+                },
               },
             },
-            { $sort: { _id: 1 } },
+            {
+              $project: {
+                _id: 0,
+                totalClicks: 1,
+                uniqueUsers: { $size: '$uniqueUsers' },
+                clicksInWeek: 1,
+                osType: {
+                  $map: {
+                    input: {
+                      $setUnion: {
+                        $map: {
+                          input: '$osType',
+                          as: 'os',
+                          in: '$$os.os',
+                        },
+                      },
+                    },
+                    as: 'os',
+                    in: {
+                      osName: '$$os',
+                      uniqueClicks: {
+                        $size: {
+                          $filter: {
+                            input: '$osType',
+                            as: 'osItem',
+                            cond: { $eq: ['$$osItem.os', '$$os'] },
+                          },
+                        },
+                      },
+                      uniqueUsers: {
+                        $size: {
+                          $setUnion: {
+                            $map: {
+                              input: {
+                                $filter: {
+                                  input: '$osType',
+                                  as: 'osItem',
+                                  cond: { $eq: ['$$osItem.os', '$$os'] },
+                                },
+                              },
+                              as: 'osItem',
+                              in: '$$osItem.ipAddress',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+                deviceType: {
+                  $map: {
+                    input: {
+                      $setUnion: {
+                        $map: {
+                          input: '$deviceType',
+                          as: 'device',
+                          in: '$$device.device',
+                        },
+                      },
+                    },
+                    as: 'device',
+                    in: {
+                      deviceName: '$$device',
+                      uniqueClicks: {
+                        $size: {
+                          $filter: {
+                            input: '$deviceType',
+                            as: 'deviceItem',
+                            cond: { $eq: ['$$deviceItem.device', '$$device'] },
+                          },
+                        },
+                      },
+                      uniqueUsers: {
+                        $size: {
+                          $setUnion: {
+                            $map: {
+                              input: {
+                                $filter: {
+                                  input: '$deviceType',
+                                  as: 'deviceItem',
+                                  cond: {
+                                    $eq: ['$$deviceItem.device', '$$device'],
+                                  },
+                                },
+                              },
+                              as: 'deviceItem',
+                              in: '$$deviceItem.ipAddress',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           ],
           urlList: [
             {
@@ -115,10 +327,10 @@ class AnalyticsService {
                 shortUrl: 1,
                 originalUrl: 1,
                 createdAt: 1,
-                clickCount: { $size: '$clicks' },
+                clicks: { $size: { $ifNull: ['$clicks', []] } },
               },
             },
-            { $sort: { clickCount: -1 } },
+            { $sort: { clicks: -1 } },
           ],
         },
       },
@@ -126,12 +338,36 @@ class AnalyticsService {
         $project: {
           urlCount: { $arrayElemAt: ['$urlCount.count', 0] },
           totalClicks: { $arrayElemAt: ['$clickStats.totalClicks', 0] },
-          uniqueUsers: {
-            $size: { $arrayElemAt: ['$clickStats.uniqueUsers', 0] },
+          uniqueUsers: { $arrayElemAt: ['$clickStats.uniqueUsers', 0] },
+          clicksInWeek: {
+            $reduce: {
+              input: { $arrayElemAt: ['$clickStats.clicksInWeek', 0] },
+              initialValue: [],
+              in: {
+                $concatArrays: [
+                  '$$value',
+                  [
+                    {
+                      date: '$$this.date',
+                      value: {
+                        $add: [
+                          {
+                            $ifNull: [
+                              { $arrayElemAt: ['$$value.value', -1] },
+                              0,
+                            ],
+                          },
+                          '$$this.value',
+                        ],
+                      },
+                    },
+                  ],
+                ],
+              },
+            },
           },
-          devices: { $arrayElemAt: ['$clickStats.devices', 0] },
-          countries: { $arrayElemAt: ['$clickStats.countries', 0] },
-          clicksByDay: 1,
+          osType: { $arrayElemAt: ['$clickStats.osType', 0] },
+          deviceType: { $arrayElemAt: ['$clickStats.deviceType', 0] },
           urlList: 1,
         },
       },
@@ -142,9 +378,9 @@ class AnalyticsService {
         urlCount: 0,
         totalClicks: 0,
         uniqueUsers: 0,
-        devices: [],
-        countries: [],
-        clicksByDay: [],
+        clicksInWeek: [],
+        osType: [],
+        deviceType: [],
         urlList: [],
       }
     );
@@ -153,20 +389,33 @@ class AnalyticsService {
   async getUrlAnalytics(shortUrl) {
     const analytics = await Url.aggregate([
       { $match: { shortUrl } },
-      { $unwind: '$clicks' },
+      { $unwind: { path: '$clicks', preserveNullAndEmptyArrays: true } },
       {
         $group: {
           _id: null,
           totalClicks: { $sum: 1 },
           uniqueUsers: { $addToSet: '$clicks.ipAddress' },
-          devices: { $addToSet: '$clicks.device' },
-          countries: { $addToSet: '$clicks.location.country' },
-          clicksByDay: {
+          clicksInWeek: {
             $push: {
-              timestamp: '$clicks.timestamp',
+              date: {
+                $dateToString: {
+                  format: '%Y-%m-%d',
+                  date: '$clicks.timestamp',
+                },
+              },
+              value: 1,
+            },
+          },
+          osType: {
+            $push: {
+              os: '$clicks.os',
               ipAddress: '$clicks.ipAddress',
+            },
+          },
+          deviceType: {
+            $push: {
               device: '$clicks.device',
-              country: '$clicks.location.country',
+              ipAddress: '$clicks.ipAddress',
             },
           },
         },
@@ -176,21 +425,116 @@ class AnalyticsService {
           _id: 0,
           totalClicks: 1,
           uniqueUsers: { $size: '$uniqueUsers' },
-          devices: 1,
-          countries: 1,
-          clicksByDay: {
-            $map: {
-              input: '$clicksByDay',
-              as: 'click',
+          clicksInWeek: {
+            $reduce: {
+              input: '$clicksInWeek',
+              initialValue: [],
               in: {
-                date: {
-                  $dateToString: {
-                    format: '%Y-%m-%d',
-                    date: '$$click.timestamp',
+                $concatArrays: [
+                  '$$value',
+                  [
+                    {
+                      date: '$$this.date',
+                      value: {
+                        $add: [
+                          {
+                            $ifNull: [
+                              { $arrayElemAt: ['$$value.value', -1] },
+                              0,
+                            ],
+                          },
+                          '$$this.value',
+                        ],
+                      },
+                    },
+                  ],
+                ],
+              },
+            },
+          },
+          osType: {
+            $map: {
+              input: {
+                $setUnion: {
+                  $map: {
+                    input: '$osType',
+                    as: 'os',
+                    in: '$$os.os',
                   },
                 },
-                device: '$$click.device',
-                country: '$$click.country',
+              },
+              as: 'os',
+              in: {
+                osName: '$$os',
+                uniqueClicks: {
+                  $size: {
+                    $filter: {
+                      input: '$osType',
+                      as: 'osItem',
+                      cond: { $eq: ['$$osItem.os', '$$os'] },
+                    },
+                  },
+                },
+                uniqueUsers: {
+                  $size: {
+                    $setUnion: {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: '$osType',
+                            as: 'osItem',
+                            cond: { $eq: ['$$osItem.os', '$$os'] },
+                          },
+                        },
+                        as: 'osItem',
+                        in: '$$osItem.ipAddress',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          deviceType: {
+            $map: {
+              input: {
+                $setUnion: {
+                  $map: {
+                    input: '$deviceType',
+                    as: 'device',
+                    in: '$$device.device',
+                  },
+                },
+              },
+              as: 'device',
+              in: {
+                deviceName: '$$device',
+                uniqueClicks: {
+                  $size: {
+                    $filter: {
+                      input: '$deviceType',
+                      as: 'deviceItem',
+                      cond: { $eq: ['$$deviceItem.device', '$$device'] },
+                    },
+                  },
+                },
+                uniqueUsers: {
+                  $size: {
+                    $setUnion: {
+                      $map: {
+                        input: {
+                          $filter: {
+                            input: '$deviceType',
+                            as: 'deviceItem',
+                            cond: { $eq: ['$$deviceItem.device', '$$device'] },
+                          },
+                        },
+                        as: 'deviceItem',
+                        in: '$$deviceItem.ipAddress',
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -202,9 +546,9 @@ class AnalyticsService {
       analytics[0] || {
         totalClicks: 0,
         uniqueUsers: 0,
-        devices: [],
-        countries: [],
-        clicksByDay: [],
+        clicksInWeek: [],
+        osType: [],
+        deviceType: [],
       }
     );
   }

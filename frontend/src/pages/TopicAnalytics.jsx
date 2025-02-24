@@ -32,7 +32,7 @@ const TopicAnalytics = () => {
       const data = await getTopicAnalyticsApi(topic);
       setTopicAnalytics(data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Failed to fetch topic analytics');
       navigate('/');
     } finally {
@@ -40,7 +40,7 @@ const TopicAnalytics = () => {
     }
   };
 
-  if (loading) {
+  if (loading || !topicAnalytics) {
     return <Loading />;
   }
 
@@ -67,46 +67,104 @@ const TopicAnalytics = () => {
               <List>
                 <ListItem>
                   <ListItemText
+                    primary="Total URLs"
+                    secondary={topicAnalytics.urlCount || 0}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
                     primary="Total Clicks"
-                    secondary={topicAnalytics.totalClicks}
+                    secondary={topicAnalytics.totalClicks || 0}
                   />
                 </ListItem>
                 <ListItem>
                   <ListItemText
                     primary="Unique Users"
-                    secondary={topicAnalytics.uniqueUsers}
+                    secondary={topicAnalytics.uniqueUsers || 0}
                   />
                 </ListItem>
               </List>
             </Paper>
           </Grid>
 
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2 }}>
-              <AnalyticsChart
-                data={topicAnalytics.clicksInWeek}
-                title="Clicks Over Time"
-              />
-            </Paper>
-          </Grid>
-
+          {/* Clicks Over Time Chart */}
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6" gutterBottom>
-                URLs in this Topic
+                Clicks Over Time
               </Typography>
-              <List>
-                {topicAnalytics.urls.map((url) => (
-                  <ListItem key={url.shortUrl}>
-                    <ListItemText
-                      primary={url.shortUrl}
-                      secondary={`${url.totalClicks} clicks (${url.uniqueUsers} unique users)`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
+              <Box sx={{ width: '100%', height: 300 }}>
+                <AnalyticsChart
+                  data={topicAnalytics.clicksInWeek || []}
+                  title="Clicks Over Time"
+                />
+              </Box>
             </Paper>
           </Grid>
+
+          {/* Operating Systems */}
+          {topicAnalytics.osType && topicAnalytics.osType.length > 0 && (
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Operating Systems
+                </Typography>
+                <List>
+                  {topicAnalytics.osType.map((os) => (
+                    <ListItem key={os.osName}>
+                      <ListItemText
+                        primary={os.osName || 'Unknown'}
+                        secondary={`${os.uniqueClicks} clicks (${os.uniqueUsers} unique users)`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
+          )}
+
+          {/* Device Types */}
+          {topicAnalytics.deviceType &&
+            topicAnalytics.deviceType.length > 0 && (
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Device Types
+                  </Typography>
+                  <List>
+                    {topicAnalytics.deviceType.map((device) => (
+                      <ListItem key={device.deviceName}>
+                        <ListItemText
+                          primary={device.deviceName || 'Unknown'}
+                          secondary={`${device.uniqueClicks} clicks (${device.uniqueUsers} unique users)`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Paper>
+              </Grid>
+            )}
+
+          {/* URLs List */}
+          {topicAnalytics.urlList && topicAnalytics.urlList.length > 0 && (
+            <Grid item xs={12}>
+              <Paper sx={{ p: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  URLs in this Topic
+                </Typography>
+                <List>
+                  {topicAnalytics.urlList.map((url) => (
+                    <ListItem key={url.shortUrl}>
+                      <ListItemText
+                        primary={url.shortUrl}
+                        secondary={`${url.originalUrl} (${url.clicks} clicks)`}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
+          )}
         </Grid>
       </Box>
     </Container>

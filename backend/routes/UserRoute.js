@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import googleLogin from '../controllers/UserController.js';
+import { googleLogin } from '../controllers/UserController.js';
 
 const router = Router();
 

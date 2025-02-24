@@ -1,4 +1,3 @@
-import User from '../models/UserModel.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 
@@ -19,28 +18,12 @@ class UserService {
     }
   }
 
-  async findOrCreateUser(payload) {
-    const { email, name, picture } = payload;
-
-    // Find existing user or create new one
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await User.create({
-        email,
-        name,
-        picture,
-        provider: 'google',
-      });
-    }
-
-    return user;
-  }
-
-  generateToken(user) {
+  generateToken(payload) {
     return jwt.sign(
       {
-        email: user.email,
-        id: user._id,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
       },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
@@ -51,17 +34,14 @@ class UserService {
     // Verify Google token
     const payload = await this.verifyGoogleToken(credential);
 
-    // Find or create user
-    const user = await this.findOrCreateUser(payload);
-
     // Generate JWT token
-    const token = this.generateToken(user);
+    const token = this.generateToken(payload);
 
     return {
       user: {
-        email: user.email,
-        name: user.name,
-        picture: user.picture,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
       },
       token,
     };
@@ -70,22 +50,14 @@ class UserService {
   async verifyToken(token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findOne({ email: decoded.email });
-      if (!user) {
-        throw new Error('User not found');
-      }
-      return user;
+      return {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
+      };
     } catch (error) {
       throw new Error('Invalid token');
     }
-  }
-
-  async getUserProfile(userId) {
-    const user = await User.findById(userId).select('-__v');
-    if (!user) {
-      throw new Error('User not found');
-    }
-    return user;
   }
 }
 

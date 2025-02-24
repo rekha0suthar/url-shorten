@@ -11,24 +11,14 @@ const googleLogin = async (req, res) => {
   }
 };
 
-const getProfile = async (req, res) => {
-  try {
-    const user = await userService.getUserProfile(req.user.id);
-    res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(404).json({ message: error.message || 'User not found' });
-  }
-};
-
 const checkAuthStatus = async (req, res) => {
   try {
-    const user = await userService.getUserProfile(req.user.id);
-    res.status(200).json({ user });
+    // req.user is already verified by the auth middleware
+    res.status(200).json({ user: req.user });
   } catch (error) {
     console.error(error);
     res.status(401).json({ message: 'Not authenticated' });
   }
 };
 
-export { googleLogin, getProfile, checkAuthStatus };
+export { googleLogin, checkAuthStatus };

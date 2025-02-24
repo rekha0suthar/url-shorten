@@ -28,6 +28,24 @@ export const loginUser = createAsyncThunk('auth/login', async (response) => {
   return response;
 });
 
+export const checkAuthStatus = createAsyncThunk(
+  'auth/checkStatus',
+  async (_, { getState }) => {
+    const response = await fetch('/api/auth/status', {
+      headers: {
+        Authorization: `Bearer ${getState().auth.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Authentication failed');
+    }
+
+    const data = await response.json();
+    return data.user;
+  }
+);
+
 const initialState = {
   ...getUserFromStorage(),
   loading: false,
@@ -68,6 +86,23 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+        localStorage.removeItem('user');
+      })
+      .addCase(checkAuthStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkAuthStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuthStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
         state.isAuthenticated = false;
