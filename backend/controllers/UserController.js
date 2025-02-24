@@ -1,34 +1,34 @@
-import jwt from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+import userService from '../services/userService.js';
 
 const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
-
-    // Create JWT token
-    const jwtToken = jwt.sign(
-      { email, name, picture },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      token: jwtToken,
-      user: { email, name, picture },
-    });
+    const result = await userService.handleGoogleLogin(token);
+    res.status(200).json(result);
   } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(401).json({ error: 'Authentication failed' });
+    console.error(error);
+    res.status(401).json({ message: error.message || 'Authentication failed' });
   }
 };
 
-export default googleLogin;
+const getProfile = async (req, res) => {
+  try {
+    const user = await userService.getUserProfile(req.user.id);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: error.message || 'User not found' });
+  }
+};
+
+const checkAuthStatus = async (req, res) => {
+  try {
+    const user = await userService.getUserProfile(req.user.id);
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ message: 'Not authenticated' });
+  }
+};
+
+export { googleLogin, getProfile, checkAuthStatus };
