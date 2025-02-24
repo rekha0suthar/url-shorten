@@ -16,30 +16,31 @@ import {
 } from '@mui/material';
 import { Analytics as AnalyticsIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
 import { ArrowBack } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
+import { fetchUrls } from '../redux/slices/urlSlice';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const UrlList = () => {
   const navigate = useNavigate();
-  const { loading, urls, fetchUrls, totalUrls } = useAuth();
+  const dispatch = useDispatch();
+  const { loading, urls } = useSelector((state) => state.url);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const limit = 7; // Number of URLs per page
 
   useEffect(() => {
-    fetchUrls({ page, limit });
-  }, [page]);
+    dispatch(fetchUrls({ page, limit }));
+  }, [page, dispatch]);
 
   useEffect(() => {
-    if (totalUrls && limit) {
-      setPages(Math.ceil(totalUrls / limit));
+    if (urls?.total && limit) {
+      setPages(Math.ceil(urls.total / limit));
     }
-  }, [totalUrls, limit]);
+  }, [urls?.total, limit]);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -59,7 +60,7 @@ const UrlList = () => {
         Back to Dashboard
       </Button>
       <Typography variant="h4" component="h1" gutterBottom>
-        Urls History
+        URLs History
       </Typography>
       <TableContainer className="url-list" component={Paper}>
         <Table>
@@ -73,8 +74,8 @@ const UrlList = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {urls.length > 0 &&
-              urls.map((url) => (
+            {urls?.data?.length > 0 &&
+              urls.data.map((url) => (
                 <TableRow key={url.shortUrl}>
                   <TableCell>
                     <Link
@@ -128,7 +129,7 @@ const UrlList = () => {
                   </TableCell>
                 </TableRow>
               ))}
-            {urls.length === 0 && (
+            {(!urls?.data || urls.data.length === 0) && (
               <TableRow>
                 <TableCell colSpan={5} align="center">
                   No URLs found
@@ -148,19 +149,6 @@ const UrlList = () => {
       </Box>
     </>
   );
-};
-
-UrlList.propTypes = {
-  urls: PropTypes.arrayOf(
-    PropTypes.shape({
-      shortUrl: PropTypes.string.isRequired,
-      originalUrl: PropTypes.string.isRequired,
-      topic: PropTypes.string,
-      createdAt: PropTypes.string.isRequired,
-      // Add other properties if necessary
-    })
-  ).isRequired,
-  totalUrls: PropTypes.number.isRequired,
 };
 
 export default UrlList;

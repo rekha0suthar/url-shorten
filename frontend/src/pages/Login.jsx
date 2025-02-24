@@ -1,35 +1,29 @@
 import { Box, Typography, Container, Paper } from '@mui/material';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { useAuth } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { googleLoginApi } from '../apis/index';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
+import { loginUser } from '../redux/slices/authSlice';
 
 const Login = () => {
-  const { login, setLoading, handleData, loading } = useAuth();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const location = useLocation();
-  // Get the state passed from the redirect (if any)
 
   const onSuccess = async (credentialResponse) => {
     try {
-      setLoading(false);
-      const { redirectAfterLogin, pendingUrlData } = location.state || {};
-      const data = await googleLoginApi(credentialResponse);
+      const { redirectAfterLogin } = location.state || {};
+      const response = await googleLoginApi(credentialResponse);
 
-      login({
-        token: data.token,
-        ...data.user,
-      });
+      await dispatch(loginUser(response)).unwrap();
       navigate(redirectAfterLogin || '/');
-      if (pendingUrlData) {
-        handleData();
-      }
       toast.success('Login successful!');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
+      toast.error(error.message || 'Login failed. Please try again.');
     }
   };
 

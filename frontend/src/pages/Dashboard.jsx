@@ -8,18 +8,31 @@ import {
   FormControl,
   Stack,
 } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import CreateUrlForm from '../components/CreateUrlForm';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../components/Loading';
+import { setSelectedTopic } from '../redux/slices/analyticsSlice';
+import { fetchUrls } from '../redux/slices/urlSlice';
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { fetchUrls, selectedTopic, setSelectedTopic, loading } = useAuth();
+  const { selectedTopic } = useSelector((state) => state.analytics);
+  const { loading } = useSelector((state) => state.url);
+
+  useEffect(() => {
+    dispatch(fetchUrls());
+  }, [dispatch]);
 
   const handleTopicChange = (e) => {
-    setSelectedTopic(e.target.value);
+    dispatch(setSelectedTopic(e.target.value));
     navigate(`/topic/${e.target.value}`);
+  };
+
+  const handleUrlCreated = () => {
+    dispatch(fetchUrls());
   };
 
   if (loading) {
@@ -62,7 +75,7 @@ const Dashboard = () => {
             </FormControl>
           </Stack>
         </Box>
-        <CreateUrlForm onUrlCreated={fetchUrls} />
+        <CreateUrlForm onUrlCreated={handleUrlCreated} />
       </Box>
     </Container>
   );

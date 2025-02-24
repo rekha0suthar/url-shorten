@@ -1,17 +1,15 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Loading from './Loading';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const location = useLocation();
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return (
+      <Navigate to="/login" state={{ redirectAfterLogin: location.pathname }} />
+    );
   }
 
   return children;

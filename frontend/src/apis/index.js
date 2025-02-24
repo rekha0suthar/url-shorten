@@ -7,9 +7,16 @@ const api = axios.create({
 
 // Setting headers for axios instance
 api.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (user?.token) {
-    config.headers.Authorization = `Bearer ${user.token}`;
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const { token } = JSON.parse(storedUser);
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error parsing user data from localStorage:', error);
+    }
   }
   return config;
 });
@@ -42,7 +49,7 @@ export const getUrlAnalyticsApi = async (alias) => {
 
 // fetch analytics of all urls
 export const getOverallAnalyticsApi = async () => {
-  const response = await api.get(`/analytics/overall`);
+  const response = await api.get('/analytics/overall');
   return response.data;
 };
 

@@ -53,10 +53,10 @@ const Analytics = () => {
       <Box sx={{ mt: 4, mb: 4 }}>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/history')}
           sx={{ mb: 3 }}
         >
-          Back to Dashboard
+          Back
         </Button>
         <Typography variant="h4" component="h1" gutterBottom>
           {shortUrl === 'overall'
