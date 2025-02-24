@@ -64,6 +64,7 @@
 ### Frontend
 
 - **React**: User interface library.
+- **Redux Toolkit**: State management library for React.
 - **Material-UI (MUI)**: UI component library for React.
 - **React Router DOM**: Routing library for React applications.
 - **Axios**: Promise-based HTTP client for browser and Node.js.
