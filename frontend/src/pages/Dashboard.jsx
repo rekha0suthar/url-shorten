@@ -31,10 +31,6 @@ const Dashboard = () => {
     navigate(`/topic/${e.target.value}`);
   };
 
-  const handleUrlCreated = () => {
-    dispatch(fetchUrls());
-  };
-
   if (loading) {
     return <Loading />;
   }
@@ -75,7 +71,7 @@ const Dashboard = () => {
             </FormControl>
           </Stack>
         </Box>
-        <CreateUrlForm onUrlCreated={handleUrlCreated} />
+        <CreateUrlForm />
       </Box>
     </Container>
   );

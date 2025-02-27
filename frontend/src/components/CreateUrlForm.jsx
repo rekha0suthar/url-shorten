@@ -13,16 +13,18 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { toast } from 'react-toastify';
-import { createShortUrl, setFormData } from '../redux/slices/urlSlice';
+import { handleData, setFormData } from '../redux/slices/urlSlice';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 const topics = ['acquisition', 'activation', 'retention'];
-const BASE_URL = import.meta.env.VITE_API_URL;
 
-const CreateUrlForm = ({ onUrlCreated }) => {
+const CreateUrlForm = () => {
   const dispatch = useDispatch();
   const { loading, formData, shortUrl } = useSelector((state) => state.url);
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const [aliasError, setAliasError] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,19 +41,15 @@ const CreateUrlForm = ({ onUrlCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await dispatch(createShortUrl(formData)).unwrap();
-      dispatch(
-        setFormData({
-          originalUrl: '',
-          customAlias: '',
-          topic: '',
-        })
-      );
-      onUrlCreated();
-    } catch (err) {
-      toast.error(err.message || 'Failed to create short URL');
+
+    if (!isAuthenticated) {
+      navigate('/login', {
+        state: { redirectAfterLogin: '/', pendingUrlData: formData },
+      });
+      return;
     }
+
+    await handleData(dispatch, formData);
   };
 
   const handleCopyUrl = () => {
@@ -106,7 +104,11 @@ const CreateUrlForm = ({ onUrlCreated }) => {
         fullWidth
         disabled={loading}
       >
-        {loading ? 'Creating...' : 'Create Short URL'}
+        {loading
+          ? 'Creating...'
+          : isAuthenticated
+          ? 'Create Short URL'
+          : 'Login to Create Short URL'}
       </Button>
 
       {shortUrl && (
@@ -133,7 +135,7 @@ const CreateUrlForm = ({ onUrlCreated }) => {
 };
 
 CreateUrlForm.propTypes = {
-  onUrlCreated: PropTypes.func.isRequired,
+  onUrlCreated: PropTypes.func,
 };
 
 export default CreateUrlForm;

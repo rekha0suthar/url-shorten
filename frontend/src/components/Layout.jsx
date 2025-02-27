@@ -2,16 +2,20 @@ import { Outlet } from 'react-router-dom';
 import { Box, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { LogoutOutlined } from '@mui/icons-material';
+import { LogoutOutlined, LoginOutlined } from '@mui/icons-material';
 import { logout } from '../redux/slices/authSlice';
 
 const Layout = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate('/');
+  };
+
+  const handleLogin = () => {
     navigate('/login');
   };
 
@@ -27,13 +31,17 @@ const Layout = () => {
           >
             Shortify
           </Typography>
-          {user && (
+          {isAuthenticated && user ? (
             <>
               <Typography sx={{ ml: 3 }}>{user.email}</Typography>
               <Button color="inherit" onClick={handleLogout}>
                 <LogoutOutlined />
               </Button>
             </>
+          ) : (
+            <Button color="inherit" onClick={handleLogin}>
+              <LoginOutlined />
+            </Button>
           )}
         </Toolbar>
       </AppBar>

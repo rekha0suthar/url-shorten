@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { shortenUrlApi, getUrlsApi } from '../../apis';
+import { toast } from 'react-toastify';
 
 // Async thunk for creating short URL
 export const createShortUrl = createAsyncThunk(
@@ -15,6 +16,22 @@ export const fetchUrls = createAsyncThunk('url/fetchUrls', async (params) => {
   const data = await getUrlsApi(params);
   return data;
 });
+
+export const handleData = async (dispatch, formData) => {
+  try {
+    await dispatch(createShortUrl(formData)).unwrap();
+    dispatch(setFormData(initialState.formData)); // Only clear form inputs
+    await dispatch(fetchUrls()).unwrap();
+  } catch (err) {
+    console.error('Error creating URL:', err);
+    // Extract error message from the backend response
+    const errorMessage =
+      err.response?.data?.message ||
+      err.message ||
+      'Failed to create short URL';
+    toast.error(errorMessage);
+  }
+};
 
 const initialState = {
   loading: false,

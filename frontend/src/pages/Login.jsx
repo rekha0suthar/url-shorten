@@ -6,7 +6,7 @@ import { googleLoginApi } from '../apis/index';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { loginUser } from '../redux/slices/authSlice';
-
+import { handleData } from '../redux/slices/urlSlice';
 const Login = () => {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
@@ -15,11 +15,15 @@ const Login = () => {
 
   const onSuccess = async (credentialResponse) => {
     try {
-      const { redirectAfterLogin } = location.state || {};
+      const { redirectAfterLogin, pendingUrlData } = location.state || {};
       const response = await googleLoginApi(credentialResponse);
 
       await dispatch(loginUser(response)).unwrap();
       navigate(redirectAfterLogin || '/');
+      if (pendingUrlData) {
+        await handleData(dispatch, pendingUrlData);
+      }
+
       toast.success('Login successful!');
     } catch (error) {
       console.error('Login error:', error);
