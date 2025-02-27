@@ -59,7 +59,26 @@ const CreateUrlForm = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        mb: 4,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+        '& .MuiTextField-root, & .MuiFormControl-root': {
+          '& .MuiInputBase-root': {
+            fontSize: { xs: '1rem', md: '1.2rem' },
+            padding: { md: '4px 0' },
+          },
+          '& .MuiInputLabel-root': {
+            fontSize: { xs: '1rem', md: '1.2rem' },
+          },
+        },
+      }}
+    >
       <TextField
         fullWidth
         label="Original URL"
@@ -67,7 +86,11 @@ const CreateUrlForm = () => {
         value={formData.originalUrl}
         onChange={handleChange}
         required
-        sx={{ mb: 2 }}
+        sx={{
+          '& .MuiInputBase-root': {
+            borderRadius: 2,
+          },
+        }}
       />
       <TextField
         fullWidth
@@ -77,15 +100,22 @@ const CreateUrlForm = () => {
         error={!!aliasError}
         helperText={aliasError}
         onChange={handleChange}
-        sx={{ mb: 2 }}
+        sx={{
+          '& .MuiInputBase-root': {
+            borderRadius: 2,
+          },
+        }}
       />
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Topic (optional)</InputLabel>
+      <FormControl fullWidth>
+        <InputLabel>Topic </InputLabel>
         <Select
           name="topic"
           value={formData.topic}
           onChange={handleChange}
-          label="Topic (optional)"
+          label="Topic"
+          sx={{
+            borderRadius: 2,
+          }}
         >
           <MenuItem value="others">
             <em>Others</em>
@@ -102,7 +132,13 @@ const CreateUrlForm = () => {
         variant="contained"
         color="primary"
         fullWidth
+        size="large"
         disabled={loading}
+        sx={{
+          py: { xs: 1.5, md: 2 },
+          fontSize: { xs: '1rem', md: '1.2rem' },
+          borderRadius: 2,
+        }}
       >
         {loading
           ? 'Creating...'
@@ -112,7 +148,18 @@ const CreateUrlForm = () => {
       </Button>
 
       {shortUrl && (
-        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            mt: 2,
+            width: '100%',
+            backgroundColor: 'grey.50',
+            borderRadius: 2,
+            p: { xs: 2, md: 3 },
+          }}
+        >
           <TextField
             fullWidth
             label="Short URL"
@@ -121,11 +168,31 @@ const CreateUrlForm = () => {
               readOnly: true,
             }}
             variant="outlined"
-            sx={{ mr: 1 }}
+            sx={{
+              '& .MuiInputBase-root': {
+                borderRadius: 2,
+                fontSize: { xs: '1rem', md: '1.2rem' },
+              },
+            }}
           />
           <Tooltip title="Copy to clipboard">
-            <IconButton color="primary" onClick={handleCopyUrl}>
-              <ContentCopyIcon />
+            <IconButton
+              color="primary"
+              onClick={handleCopyUrl}
+              sx={{
+                flexShrink: 0,
+                backgroundColor: 'primary.main',
+                color: 'white',
+                width: { xs: 40, md: 56 },
+                height: { xs: 40, md: 56 },
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              }}
+            >
+              <ContentCopyIcon
+                sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}
+              />
             </IconButton>
           </Tooltip>
         </Box>

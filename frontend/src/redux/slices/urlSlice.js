@@ -40,7 +40,7 @@ const initialState = {
   formData: {
     originalUrl: '',
     customAlias: '',
-    topic: '',
+    topic: 'others',
   },
   urls: {
     data: [],

@@ -33,13 +33,25 @@ const Layout = () => {
           </Typography>
           {isAuthenticated && user ? (
             <>
-              <Typography sx={{ ml: 3 }}>{user.email}</Typography>
-              <Button color="inherit" onClick={handleLogout}>
+              <Typography
+                sx={{
+                  ml: 3,
+                  fontSize: { xs: '0.9rem', md: '1.1rem' },
+                  fontWeight: 500,
+                }}
+              >
+                {user.email.split('@')[0]}
+              </Typography>
+              <Button
+                color="inherit"
+                sx={{ minWidth: 0 }}
+                onClick={handleLogout}
+              >
                 <LogoutOutlined />
               </Button>
             </>
           ) : (
-            <Button color="inherit" onClick={handleLogin}>
+            <Button color="inherit" onClick={handleLogin} sx={{ minWidth: 0 }}>
               <LoginOutlined />
             </Button>
           )}

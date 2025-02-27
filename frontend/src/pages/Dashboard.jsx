@@ -36,25 +36,67 @@ const Dashboard = () => {
   }
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ mt: 4, mb: 4 }}>
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+    <Container maxWidth={false} sx={{ maxWidth: '2000px' }}>
+      <Box
+        sx={{
+          mt: 4,
+          mb: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            mb: 4,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+          }}
+        >
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            spacing={2}
+            sx={{
+              width: '100%',
+              maxWidth: {
+                xs: '100%',
+                sm: '600px',
+                md: '900px',
+                lg: '1200px',
+                xl: '1600px',
+              },
+              justifyContent: 'start',
+            }}
+          >
             <Button
               variant="outlined"
-              sx={{ mr: 1, p: 1.5 }}
+              sx={{
+                mr: { xs: 0, md: 1 },
+                p: 1.5,
+                minWidth: { xs: '100%', md: '250px' },
+                fontSize: { md: '1.1rem' },
+              }}
               onClick={() => navigate('/analytics/overall')}
             >
               Overall Analytics
             </Button>
             <Button
               variant="outlined"
-              sx={{ mr: 1, p: 1.5 }}
+              sx={{
+                mr: { xs: 0, md: 1 },
+                p: 1.5,
+                minWidth: { xs: '100%', md: '250px' },
+                fontSize: { md: '1.1rem' },
+              }}
               onClick={() => navigate('/history')}
             >
               History
             </Button>
-            <FormControl sx={{ minWidth: 200 }}>
+            <FormControl sx={{ minWidth: { xs: '100%', md: '250px' } }}>
               <InputLabel id="topic-select-label">Filter by Topic</InputLabel>
               <Select
                 labelId="topic-select-label"
@@ -62,6 +104,7 @@ const Dashboard = () => {
                 value={selectedTopic}
                 label="Filter by Topic"
                 onChange={handleTopicChange}
+                sx={{ fontSize: { md: '1.1rem' } }}
               >
                 <MenuItem value="acquisition">Acquisition</MenuItem>
                 <MenuItem value="activation">Activation</MenuItem>
@@ -71,7 +114,20 @@ const Dashboard = () => {
             </FormControl>
           </Stack>
         </Box>
-        <CreateUrlForm />
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: {
+              xs: '100%',
+              sm: '600px',
+              md: '900px',
+              lg: '1200px',
+              xl: '1600px',
+            },
+          }}
+        >
+          <CreateUrlForm />
+        </Box>
       </Box>
     </Container>
   );

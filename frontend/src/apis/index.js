@@ -31,8 +31,24 @@ export const googleLoginApi = async (credentialResponse) => {
 
 // Shorten url api
 export const shortenUrlApi = async (data) => {
-  const response = await api.post('/shorten', data);
-  return response.data;
+  try {
+    const response = await api.post('/shorten', data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      throw new Error(
+        error.response.data.message || 'Failed to create short URL'
+      );
+    } else if (error.request) {
+      // The request was made but no response was received
+      throw new Error('No response from server');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      throw new Error('Error setting up the request');
+    }
+  }
 };
 
 // fetch all urls api
